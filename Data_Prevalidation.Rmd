@@ -1,0 +1,73 @@
+---
+title: "Data pre-validation"
+output: html_document
+---
+
+## 1. Satellite Data
+
+GEE data pre-validation code link: <https://code.earthengine.google.com/5af2353146d900b5380b4e6f28f78b04>
+
+More details in Word document saved in OneDrive.
+
+## 2. GTFS Data
+
+### r5r Preparation
+
+**Install JDK using {rJavaEnv} package:**
+
+```         
+Downloaded in: C:/Users/choic/AppData/Local/R/cache/R/rJavaEnv
+```
+
+```{r}
+# install.packages('rJavaEnv')
+
+# check version of Java currently installed (if any) 
+rJavaEnv::java_check_version_rjava()
+
+# install Java 21
+rJavaEnv::java_quick_install(version = 21)
+```
+
+**Install r5r:**
+
+```{r}
+# Install from CRAN
+# install.packages("r5r")
+
+# Warning message: Currently, Java memory is set to "-Xmx512m"
+# Warning message suggest set Java max memory to 2 GB before loading r5r
+options(java.parameters = '-Xmx2G')
+# ChatGPT suggested `options(java.parameters = "-Xmx4G")`
+library(r5r)
+```
+
+**Data requirements for r5r :** <https://ipeagit.github.io/r5r/#data-requirements>
+
+### 2.1. London
+
+#### 2.1.1. Data Sources
+
++------------------------+----------------------------------------------------+-----------------------------------------------------------------------------------+
+| Data                   | Description                                        | Link                                                                              |
++========================+====================================================+===================================================================================+
+| GTFS                   | Download as NaPTAN file                            | <https://beta-naptan.dft.gov.uk/>                                                 |
+|                        |                                                    |                                                                                   |
+|                        | It then needs to be converted into a GTFS format.  |                                                                                   |
++------------------------+----------------------------------------------------+-----------------------------------------------------------------------------------+
+| Road Network from OSM  | Downloaded as .pbf file                            | <https://download.geofabrik.de/europe/united-kingdom/england/greater-london.html> |
++------------------------+----------------------------------------------------+-----------------------------------------------------------------------------------+
+
+#### 2.1.2. Convert data into GTFS format
+
+```{r}
+remotes::install_github("ITSleeds/UK2GTFS")
+```
+
+```{r}
+
+```
+
+### 2.2. New York
+
+#### 2.1.2. Data Sources
