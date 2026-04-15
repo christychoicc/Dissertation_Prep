@@ -1,2 +1,2 @@
-# Dissertation_Prep
+# Dissertation Preparation
 This is a repo for preparation purposes only. 
