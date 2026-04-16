@@ -1,5 +1,5 @@
 ---
-title: "Data pre-validation"
+title: "London Data pre-validation"
 output: html_document
 ---
 
@@ -7,7 +7,15 @@ output: html_document
 
 GEE data pre-validation code link: <https://code.earthengine.google.com/5af2353146d900b5380b4e6f28f78b04>
 
-More details in Word document saved in OneDrive.
+**London Data Availability**
+
+GEE code link: <https://code.earthengine.google.com/ebd45ea5ac18517098795c096c8411d8>
+
+| Year | Landsat 8 | Landsat 9 |
+|------|-----------|-----------|
+| 2022 | 3 images  | 2 images  |
+| 2024 | 0 image   | 1 image   |
+| 2025 | 0 image   | 2 images  |
 
 ## 2. GTFS Data
 
@@ -48,15 +56,17 @@ library(r5r)
 
 #### 2.1.1. Data Sources
 
-+------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------+
-| Data                   | Description                                                                                                                            | Link                                                                              |
-+========================+========================================================================================================================================+===================================================================================+
-| GTFS                   | Download as NaPTAN file                                                                                                                | <https://beta-naptan.dft.gov.uk/>                                                 |
-|                        |                                                                                                                                        |                                                                                   |
-|                        | It then needs to be converted into a GTFS format (<https://citygeographics.org/r5r-workshop/uk-transit-data-transxchange-and-atoc/>).  |                                                                                   |
-+------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------+
-| Road Network from OSM  | Downloaded as .pbf file                                                                                                                | <https://download.geofabrik.de/europe/united-kingdom/england/greater-london.html> |
-+------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------+
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+
+| Data                  | Description                                                                                                                           | Link                                                                                   |
++=======================+=======================================================================================================================================+========================================================================================+
+| GTFS                  | Download as NaPTAN file                                                                                                               | <https://beta-naptan.dft.gov.uk/>                                                      |
+|                       |                                                                                                                                       |                                                                                        |
+|                       | It then needs to be converted into a GTFS format (<https://citygeographics.org/r5r-workshop/uk-transit-data-transxchange-and-atoc/>). |                                                                                        |
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+
+| GTFS                  | Download L.zip (for London)                                                                                                           | Look for Core FTP and use the access host, username and password from the sent email.  |
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+
+| Road Network from OSM | Downloaded as .pbf file                                                                                                               | <https://download.geofabrik.de/europe/united-kingdom/england/greater-london.html>      |
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+
 
 #### 2.1.2. Convert data into GTFS format
 
@@ -65,7 +75,55 @@ remotes::install_github("ITSleeds/UK2GTFS")
 ```
 
 ```{r}
+# Convert London TNDS (TransXChange) data into a GTFS object for later use in r5r
 
+# Load the specific package for converting to GTFS
+library(UK2GTFS)
+
+# Load Packages
+library(readr)
+library(dplyr)
+
+
+# Read NaPTAN stop data and rename columns for use with UK2GTFS
+naptan_local <- read_csv("r5r_london/Stops.csv", show_col_types = FALSE) %>%
+  rename(
+    stop_id = ATCOCode,
+    stop_name = CommonName,
+    stop_lat = Latitude,
+    stop_lon = Longitude,
+    stop_type = StopType
+  )
+
+# %>%
+#    filter(!is.na(stop_id),
+#          !is.na(stop_name),
+#          !is.na(stop_lat),
+#          !is.na(stop_lon))
+
+
+
+# Using the L.zip (London specific file) and convert into a GTFS object
+path_in <- "r5r_london/L.zip"
+gtfs <- transxchange2gtfs(path_in = path_in,
+                          # remove this line if it is not local
+                          # naptan = naptan_local,
+                          ncores = 5)
+
+
+
+# Using a London file, so this is not needed? 
+# Oxford_LAs_wgs84 <- Oxford_LAs %>%
+# st_transform(., 4326)
+  
+#gtfs_london <- gtfs_clip(gtfs, Oxford_LAs_wgs84)
+```
+
+```{r}
+# Save as GTFS file
+gtfs_write(gtfs, 
+           folder = "r5r_london/",
+           name = "gtfs_london")
 ```
 
 ### 2.2. New York
